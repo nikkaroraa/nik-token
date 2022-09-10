@@ -8,7 +8,7 @@ contract NikTokenTest is Test {
     NikToken public nikToken;
 
     function setUp() public {
-        nikToken = new NikToken("NikToken", "NIK");
+        nikToken = new NikToken();
     }
 
     function testName() public {

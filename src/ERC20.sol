@@ -1,7 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.13;
 
-contract ERC20 {
+import "./interfaces/IERC20.sol";
+
+contract ERC20 is IERC20 {
     string private _name;
     string private _symbol;
 
@@ -10,17 +12,6 @@ contract ERC20 {
     uint256 private _totalSupply;
     mapping(address => uint256) private _balances;
     mapping(address => mapping(address => uint256)) private _allowances;
-
-    event Transfer(
-        address indexed from,
-        address indexed to,
-        uint256 indexed amount
-    );
-    event Approval(
-        address indexed owner,
-        address indexed spender,
-        uint256 indexed amount
-    );
 
     constructor(string memory name_, string memory symbol_) {
         _name = name_;
@@ -39,17 +30,24 @@ contract ERC20 {
         return DECIMALS;
     }
 
-    function totalSupply() public view virtual returns (uint256) {
+    function totalSupply() public view virtual override returns (uint256) {
         return _totalSupply;
     }
 
-    function balanceOf(address account) public view virtual returns (uint256) {
+    function balanceOf(address account)
+        public
+        view
+        virtual
+        override
+        returns (uint256)
+    {
         return _balances[account];
     }
 
     function transfer(address to, uint256 amount)
         public
         virtual
+        override
         returns (bool)
     {
         _transfer(msg.sender, to, amount);
@@ -60,6 +58,7 @@ contract ERC20 {
         public
         view
         virtual
+        override
         returns (uint256)
     {
         return _allowances[owner][spender];
@@ -68,6 +67,7 @@ contract ERC20 {
     function approve(address spender, uint256 amount)
         public
         virtual
+        override
         returns (bool)
     {
         _approve(msg.sender, spender, amount);
@@ -78,7 +78,7 @@ contract ERC20 {
         address from,
         address to,
         uint256 amount
-    ) public virtual returns (bool) {
+    ) public virtual override returns (bool) {
         _spendAllowance(from, msg.sender, amount);
         _transfer(from, to, amount);
         return true;
