@@ -13,6 +13,8 @@ contract NikToken {
     mapping(address => uint256) private _balances;
     mapping(address => mapping(address => uint256)) private _allowances;
 
+    bool private _isPaused;
+
     event Transfer(
         address indexed from,
         address indexed to,
@@ -24,11 +26,16 @@ contract NikToken {
         uint256 indexed amount
     );
 
+    event Paused(address account);
+    event Unpaused(address account);
+
     constructor(string memory name_, string memory symbol_) {
         _owner = msg.sender;
 
         _name = name_;
         _symbol = symbol_;
+
+        _isPaused = false;
     }
 
     function name() public view returns (string memory) {
@@ -107,12 +114,25 @@ contract NikToken {
         _;
     }
 
+    modifier whenPaused() {
+        require(isPaused(), "not paused");
+        _;
+    }
+    modifier whenNotPaused() {
+        require(!isPaused(), "paused");
+        _;
+    }
+
     function mint(address to, uint256 amount) public onlyOwner {
         _mint(to, amount);
     }
 
     function burn(uint256 amount) public onlyOwner {
         _burn(msg.sender, amount);
+    }
+
+    function isPaused() public view returns (bool) {
+        return _isPaused;
     }
 
     /* utils */
@@ -124,6 +144,8 @@ contract NikToken {
         require(from != address(0), "ERC20: transfer from the zero address");
         require(to != address(0), "ERC20: transfer to the zero address");
 
+        _beforeTokenTransfer(from, to, amount);
+
         uint256 fromBalance = _balances[from];
         require(
             fromBalance >= amount,
@@ -133,6 +155,8 @@ contract NikToken {
         _balances[to] += amount;
 
         emit Transfer(from, to, amount);
+
+        _afterTokenTransfer(from, to, amount);
     }
 
     function _approve(
@@ -165,13 +189,19 @@ contract NikToken {
     function _mint(address account, uint256 amount) internal {
         require(account != address(0), "ERC20: mint to the zero address");
 
+        _beforeTokenTransfer(address(0), account, amount);
+
         _totalSupply += amount;
         _balances[account] += amount;
         emit Transfer(address(0), account, amount);
+
+        _afterTokenTransfer(address(0), account, amount);
     }
 
     function _burn(address account, uint256 amount) internal {
         require(account != address(0), "ERC20: burn from the zero address");
+
+        _beforeTokenTransfer(account, address(0), amount);
 
         uint256 accountBalance = _balances[account];
         require(accountBalance >= amount, "ERC20: burn amount exceeds balance");
@@ -180,5 +210,19 @@ contract NikToken {
         _totalSupply -= amount;
 
         emit Transfer(account, address(0), amount);
+
+        _afterTokenTransfer(account, address(0), amount);
     }
+
+    function _beforeTokenTransfer(
+        address from,
+        address to,
+        uint256 amount
+    ) internal whenNotPaused {}
+
+    function _afterTokenTransfer(
+        address from,
+        address to,
+        uint256 amount
+    ) internal {}
 }
