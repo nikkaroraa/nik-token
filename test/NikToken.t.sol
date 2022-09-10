@@ -1,23 +1,31 @@
-// SPDX-License-Identifier: UNLICENSED
+// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.13;
 
 import "forge-std/Test.sol";
-import "../src/Counter.sol";
+import "../src/NikToken.sol";
 
-contract CounterTest is Test {
-    Counter public counter;
+contract NikTokenTest is Test {
+    NikToken public nikToken;
+
     function setUp() public {
-       counter = new Counter();
-       counter.setNumber(0);
+        nikToken = new NikToken("NikToken", "NIK");
     }
 
-    function testIncrement() public {
-        counter.increment();
-        assertEq(counter.number(), 1);
+    function testName() public {
+        string memory name = nikToken.name();
+        assertEq(name, "NikToken");
     }
 
-    function testSetNumber(uint256 x) public {
-        counter.setNumber(x);
-        assertEq(counter.number(), x);
+    function testSymbol() public {
+        string memory symbol = nikToken.symbol();
+        assertEq(symbol, "NIK");
+    }
+
+    function testMint() public {
+        uint256 mintSupply = 10e18;
+        nikToken.mint(address(this), mintSupply);
+
+        assertEq(nikToken.balanceOf(address(this)), mintSupply);
+        assertEq(nikToken.totalSupply(), mintSupply);
     }
 }

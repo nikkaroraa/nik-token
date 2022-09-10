@@ -1,7 +1,9 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.7;
+pragma solidity ^0.8.13;
 
-contract MyToken {
+contract NikToken {
+    address private _owner;
+
     string private _name;
     string private _symbol;
 
@@ -23,6 +25,8 @@ contract MyToken {
     );
 
     constructor(string memory name_, string memory symbol_) {
+        _owner = msg.sender;
+
         _name = name_;
         _symbol = symbol_;
     }
@@ -98,6 +102,15 @@ contract MyToken {
         return true;
     }
 
+    modifier onlyOwner() {
+        require(msg.sender == _owner, "caller is not the owner");
+        _;
+    }
+
+    function mint(address to, uint256 amount) public onlyOwner {
+        _mint(to, amount);
+    }
+
     /* utils */
     function _transfer(
         address from,
@@ -143,5 +156,13 @@ contract MyToken {
             );
             _approve(owner, spender, currentAllowance - amount);
         }
+    }
+
+    function _mint(address account, uint256 amount) internal {
+        require(account != address(0), "ERC20: mint to the zero address");
+
+        _totalSupply += amount;
+        _balances[account] += amount;
+        emit Transfer(address(0), account, amount);
     }
 }
