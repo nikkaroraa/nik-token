@@ -3,11 +3,12 @@ pragma solidity ^0.8.13;
 
 import "./ERC20.sol";
 import "./access/Ownable.sol";
-import "./extensions/ERC20Burnable.sol";
 import "./security/Pausable.sol";
+import "./extensions/ERC20Burnable.sol";
+import "./extensions/ERC20Permit.sol";
 
-contract NikToken is ERC20, Ownable, ERC20Burnable, Pausable {
-    constructor() ERC20("NikToken", "NIK") {}
+contract NikToken is ERC20, Ownable, ERC20Burnable, Pausable, ERC20Permit {
+    constructor() ERC20("NikToken", "NIK") ERC20Permit("NikToken") {}
 
     function mint(address to, uint256 amount) public onlyOwner {
         _mint(to, amount);
